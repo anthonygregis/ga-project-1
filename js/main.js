@@ -28,6 +28,9 @@ function spawnFallingItems() {
     fallingItems[i].render()
 }
 
+const gameLoop = () => {
+    console.log("We be looping")
+}
 
 //Define all DOM elements, canvas settings, and startup items
 document.addEventListener('DOMContentLoaded', () => {
@@ -41,5 +44,5 @@ document.addEventListener('DOMContentLoaded', () => {
     // Context (Where I place all my items on canvas
     context = game.getContext('2d')
 
-
+    let runGameLoop = setInterval(gameLoop, 60)
 })
