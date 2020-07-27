@@ -1,15 +1,28 @@
+// Global Variables
 let game
 let context
+let lives = 3
 let points = 0
 let fallingItemsCount = 0
 let pointsSpan
+let livesSpan
 let fallingItems = []
+let keysPressed = []
+let gfuelTubs = []
+let runLeft = []
+let runRight = []
+let idleAnimation
+let trashCan
+let spawnInterval
+let movementInterval
 
-function FallingItem(x, y, size, itemType, pointValue){
+// GFuel / Trash Constructor
+function FallingItem(x, y, size, itemType, gfuelImage, pointValue){
     // Current Item Position
     this.x = x
     this.y = y
     this.size = size
+
     //Trash or Fruit
     this.itemType = itemType
 
@@ -21,18 +34,26 @@ function FallingItem(x, y, size, itemType, pointValue){
 
     // Render Item
     this.render = function() {
-        context.fillStyle = 'red'
-        context.fillRect(this.x, this.y, 10, 10)
+        if (this.itemType === "GFuel") { context.drawImage(gfuelTubs[gfuelImage], this.x, this.y, this.size, this.size) }
+        else if (this.itemType === "Trash") { context.drawImage(trashCan, this.x, this.y, this.size, this.size) }
     }
 }
 
+// Player Constructor
 function PlayerCharacter(x, y, size, characterLook){
+    // Current Location
     this.x = x
     this.y = y
+
+    // Sprite Size & Look
     this.size = size
     this.characterLook = characterLook
+
+    this.movementState = "idle"
+
+    // Render Player
     this.render = function() {
-        context.fillStyle = 'green'
+        if (this.movementState === "idle") { context.drawImage(idleAnimation, this.x, this.y, this.size, this.size) }
         context.fillRect(this.x, this.y, this.size, this.size)
     }
 }
@@ -41,14 +62,48 @@ function PlayerCharacter(x, y, size, characterLook){
 // middle of the board is 400 X but if my char is 100 wide I would need to spawn on the 350 X
 let player = new PlayerCharacter(375, 550, 50, "boyChar")
 
+// Triggered after all lives lost
+// TODO: Add in popup instead of alert and reset game to main menu
+const endGame = () => {
+    clearInterval(spawnInterval)
+    clearInterval(movementInterval)
+
+    alert(`Game Over... You had ${points} points! Good job.`)
+}
+
+const checkGameBounds = (itemXAxis) => {
+    console.log("Checking board position")
+
+    if (itemXAxis + 125 > 800) {
+        console.log("Item clipping off board")
+
+        let newAxis = Math.floor(Math.random() * 800)
+
+        checkGameBounds(newAxis)
+    } else {
+        return itemXAxis
+    }
+}
+
+// Control spawning of GFuel & Trash
+// Can only have 10 falling items on board at a time
 const spawnFallingItems = () => {
+    console.log("Spawned Items: " + fallingItemsCount)
+    // Declare itemType Variable for later usage
+    let itemTypeName
+    let gfuelImage = 0
+
     // Do not spawn more items if screen has 10 already
     if (fallingItemsCount === 10) { return }
 
     // Random chance for GFUEL or trash
     let itemType = Math.floor(Math.random() * 2)
-
-    console.log("Item Type: " + itemType)
+    if (itemType === 0) {
+        itemTypeName = "GFuel"
+        gfuelImage = Math.floor(Math.random() * 6) + 1
+    } else {
+        itemTypeName = "Trash"
+    }
 
     // Increase spawned count and define i as the count for shorter code
     // Define new item in array for accessing
@@ -56,8 +111,11 @@ const spawnFallingItems = () => {
     let i = fallingItemsCount
     let x = Math.floor(Math.random() * 800)
 
+    // Ensure on board
+    x = checkGameBounds(x)
+
     // Define && Spawn Item with random X
-    fallingItems[i] = new FallingItem(x, 0, 10, 'fruit', 100)
+    fallingItems[i] = new FallingItem(x, 0, 125, itemTypeName, gfuelImage, 100)
     fallingItems[i].render()
 }
 
@@ -74,30 +132,28 @@ const moveFallingItems = () => {
 
     // Declare each item on the floor and move each item down
     fallingItems.forEach((item, index) => {
-        if (item.y + 10 === 600) {
+        if (item.y + item.size >= 600) {
             item.isFalling = false
             fallingItemsCount--
+            console.log("Hit floor")
         } else {
-            item.y += 10
+            item.y += 1.5
             item.render()
         }
     })
 }
 
 const playerMovementHandler = (e) => {
-    switch(e.code) {
-        case "KeyA":
-            if(player.x > 0) {
-                player.x -= 5;
-            }
-            break
-        case "KeyD":
-            if(player.x + player.size < game.width) {
-                player.x += 5
-            }
-            break
-        default:
-            console.log("Nope, just no.")
+    if (keysPressed["KeyA"]){
+        if(player.x > 0) {
+            player.x -= 5;
+        }
+    } else if (keysPressed["KeyD"]){
+        if(player.x + player.size < game.width) {
+            player.x += 5
+        }
+    } else {
+
     }
 }
 
@@ -118,28 +174,33 @@ const detectPlayerCollision = () => {
             fallingItemsCount--
 
             // Detect if GFUEL or Trash
-            if (item.itemType === "GFUEL") {
+            if (item.itemType === "GFuel") {
                 // Add point for GFUEL
                 points += item.pointValue
             } else {
-                // Remove point for Trash
-                points -= item.pointValue
+                // Remove life from lives and if out of lives end game
+                if (lives > 1) {
+                    lives -= 1
+                } else {
+                    endGame()
+                }
             }
 
             // Update points display
             pointsSpan.textContent = points
+            livesSpan.textContent = lives
 
             //Despawn item
             item.isFalling = false
         }
     })
-
-
 }
 
-const quickFrameLoop = () => {
+const boardMovementLoop = () => {
+    playerMovementHandler()
     detectPlayerCollision()
     moveFallingItems()
+
     player.render()
 }
 
@@ -147,7 +208,8 @@ const quickFrameLoop = () => {
 document.addEventListener('DOMContentLoaded', () => {
     // Select Canvas
     game = document.querySelector('#game')
-    pointsSpan = document.querySelector('span')
+    pointsSpan = document.querySelector('#points')
+    livesSpan = document.querySelector('#lives')
 
     // Canvas Configs
     game.setAttribute('height', 600)
@@ -157,9 +219,39 @@ document.addEventListener('DOMContentLoaded', () => {
     context = game.getContext('2d')
 
     // Player Movement Listener
-    document.addEventListener('keydown', playerMovementHandler)
+    document.addEventListener('keydown', (e) => {
+        keysPressed[e.code] = true
+    })
+    window.addEventListener('keyup', (e) => {
+        keysPressed[e.code] = false
+    })
+
+    // Create all GFuel tub images
+    for (let i = 1; i < 7; i++) {
+        gfuelTubs[i] = document.createElement('img')
+        gfuelTubs[i].src = `./img/GFuelTub${i}.png`
+    }
+
+    //Create all left / right running images
+    for (let i = 1; i < 11; i++) {
+        runLeft[i] = document.createElement('img')
+        runLeft[i].src = `./img/runLeft${i}.png`
+
+        runRight[i] = document.createElement('img')
+        runRight[i].src = `./img/runLeft${i}.png`
+        runRight[i].style.transform = "scaleX(-1)"
+    }
+
+    //Create idle image
+    idleAnimation = document.createElement('img')
+    idleAnimation.src = './img/idle.png'
+    idleAnimation.style.width = "50px"
+
+    // Create Trash Can
+    trashCan = document.createElement('img')
+    trashCan.src = './img/trash-can.png'
 
     // Game Loops
-    let quickFrameInterval = setInterval(quickFrameLoop, 60)
-    let spawnInterval = setInterval(spawnFallingItems, 1000)
+    movementInterval = setInterval(boardMovementLoop, 10)
+    spawnInterval = setInterval(spawnFallingItems, 1000)
 })
