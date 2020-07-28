@@ -15,6 +15,8 @@ let idleAnimation
 let trashCan
 let spawnInterval
 let movementInterval
+let coinCollect
+let trashCollision
 
 // GFuel / Trash Constructor
 function FallingItem(x, y, size, itemType, gfuelImage, pointValue){
@@ -50,17 +52,36 @@ function PlayerCharacter(x, y, size, characterLook){
     this.characterLook = characterLook
 
     this.movementState = "idle"
+    this.movementStep = 1
 
     // Render Player
     this.render = function() {
         if (this.movementState === "idle") { context.drawImage(idleAnimation, this.x, this.y, this.size, this.size) }
-        context.fillRect(this.x, this.y, this.size, this.size)
+        if (this.movementState === "runningLeft") { context.drawImage(runLeft[this.movementStep], this.x, this.y, this.size, this.size) }
+        if (this.movementState === "runningRight") { context.drawImage(runRight[this.movementStep], this.x, this.y, this.size, this.size) }
+    }
+}
+
+// Sound Constructor
+// Credit - https://www.w3schools.com/graphics/game_sound.asp
+function sound(src) {
+    this.sound = document.createElement("audio");
+    this.sound.src = src;
+    this.sound.setAttribute("preload", "auto");
+    this.sound.setAttribute("controls", "none");
+    this.sound.style.display = "none";
+    document.body.appendChild(this.sound);
+    this.play = function(){
+        this.sound.play();
+    }
+    this.stop = function(){
+        this.sound.pause();
     }
 }
 
 // Spawn player character
 // middle of the board is 400 X but if my char is 100 wide I would need to spawn on the 350 X
-let player = new PlayerCharacter(375, 550, 50, "boyChar")
+let player = new PlayerCharacter(325, 525, 100, "boyChar")
 
 // Triggered after all lives lost
 // TODO: Add in popup instead of alert and reset game to main menu
@@ -115,10 +136,12 @@ const spawnFallingItems = () => {
     x = checkGameBounds(x)
 
     // Define && Spawn Item with random X
-    fallingItems[i] = new FallingItem(x, 0, 125, itemTypeName, gfuelImage, 100)
+    fallingItems[i] = new FallingItem(x, 0, 50, itemTypeName, gfuelImage, 10)
     fallingItems[i].render()
 }
 
+// Control falling of all active items and filter all item on floor
+// Rerender board of only falling items
 const moveFallingItems = () => {
     // Clear Board
     context.clearRect(0, 0, game.width, game.height)
@@ -143,20 +166,47 @@ const moveFallingItems = () => {
     })
 }
 
+// New controller allows you to move player with more fluid control and less delay
+// TODO: [BUG] Currently the sprite can get stuck looking one direction but moving the other.
+// TODO: Cause is most likely the array of buttons in activate state
 const playerMovementHandler = (e) => {
     if (keysPressed["KeyA"]){
         if(player.x > 0) {
             player.x -= 5;
+
+            // Change movement state if not already
+            if (player.movementState === "idle") { player.movementState = "runningLeft" }
+
+            // Change movement image
+            if (player.movementStep < 10) {
+                player.movementStep++
+            } else {
+                player.movementStep = 1
+            }
         }
     } else if (keysPressed["KeyD"]){
         if(player.x + player.size < game.width) {
             player.x += 5
+
+            // Change movement state if not already
+            if (player.movementState === "idle") { player.movementState = "runningRight" }
+
+            // Change movement image
+            if (player.movementStep < 10) {
+                player.movementStep++
+            } else {
+                player.movementStep = 1
+            }
         }
     } else {
-
+        player.movementStep = 0
+        player.movementState = "idle"
     }
 }
 
+// Detects collision of items with player
+// Removes lives or adds points depending on trash or GFuel
+// Plays sound on collision
 const detectPlayerCollision = () => {
     let playerRight = player.x + player.size
     let playerLeft = player.x
@@ -177,6 +227,7 @@ const detectPlayerCollision = () => {
             if (item.itemType === "GFuel") {
                 // Add point for GFUEL
                 points += item.pointValue
+                coinCollect.play()
             } else {
                 // Remove life from lives and if out of lives end game
                 if (lives > 1) {
@@ -184,6 +235,7 @@ const detectPlayerCollision = () => {
                 } else {
                     endGame()
                 }
+                trashCollision.play()
             }
 
             // Update points display
@@ -196,7 +248,8 @@ const detectPlayerCollision = () => {
     })
 }
 
-const boardMovementLoop = () => {
+// Holds all looping functions (Speed: 10ms)
+const boardMovementInterval = () => {
     playerMovementHandler()
     detectPlayerCollision()
     moveFallingItems()
@@ -205,6 +258,9 @@ const boardMovementLoop = () => {
 }
 
 // Define all DOM elements, canvas settings, and startup items
+// Contains setIntervals
+// boardMovementInterval - Speed: 10ms
+// spawnInterval - Speed: 700ms
 document.addEventListener('DOMContentLoaded', () => {
     // Select Canvas
     game = document.querySelector('#game')
@@ -222,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', (e) => {
         keysPressed[e.code] = true
     })
-    window.addEventListener('keyup', (e) => {
+    document.addEventListener('keyup', (e) => {
         keysPressed[e.code] = false
     })
 
@@ -232,26 +288,33 @@ document.addEventListener('DOMContentLoaded', () => {
         gfuelTubs[i].src = `./img/GFuelTub${i}.png`
     }
 
-    //Create all left / right running images
+    // Create all left / right running images
     for (let i = 1; i < 11; i++) {
         runLeft[i] = document.createElement('img')
-        runLeft[i].src = `./img/runLeft${i}.png`
+        runLeft[i].src = `./img/running/runLeft${i}.png`
 
         runRight[i] = document.createElement('img')
-        runRight[i].src = `./img/runLeft${i}.png`
-        runRight[i].style.transform = "scaleX(-1)"
+        runRight[i].src = `./img/running/runRight${i}.png`
     }
 
-    //Create idle image
+    // Create idle image
     idleAnimation = document.createElement('img')
     idleAnimation.src = './img/idle.png'
     idleAnimation.style.width = "50px"
 
+    // Create Main Menu Images
+
     // Create Trash Can
     trashCan = document.createElement('img')
-    trashCan.src = './img/trash-can.png'
+    trashCan.src = './img/trash.png'
+
+    // Create Coin Noise
+    coinCollect = new sound('./sound/coinCollect.mp3')
+
+    // Create Trash Noise
+    trashCollision = new sound('./sound/trashCollision.mp3')
 
     // Game Loops
-    movementInterval = setInterval(boardMovementLoop, 10)
-    spawnInterval = setInterval(spawnFallingItems, 1000)
+    movementInterval = setInterval(boardMovementInterval, 10)
+    spawnInterval = setInterval(spawnFallingItems, 700)
 })

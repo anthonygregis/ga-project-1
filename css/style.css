@@ -20,6 +20,7 @@ h1 img {
 }
 
 #game {
-    background-color: white;
+    background-image: url("https://blog.gfuel.com/hs-fs/hubfs/g_fuel_blog_assets2018/newsletter-bg.jpg?width=1920&name=newsletter-bg.jpg");
+    background-size: 100% 100%;
     outline: 1px solid red;
 }
