@@ -6,6 +6,7 @@ let points = 0
 let fallingItemsCount = 0
 let pointsSpan
 let livesSpan
+let mainMenu = []
 let fallingItems = []
 let keysPressed = []
 let gfuelTubs = []
@@ -65,17 +66,17 @@ function PlayerCharacter(x, y, size, characterLook){
 // Sound Constructor
 // Credit - https://www.w3schools.com/graphics/game_sound.asp
 function sound(src) {
-    this.sound = document.createElement("audio");
-    this.sound.src = src;
-    this.sound.setAttribute("preload", "auto");
-    this.sound.setAttribute("controls", "none");
-    this.sound.style.display = "none";
-    document.body.appendChild(this.sound);
+    this.sound = document.createElement("audio")
+    this.sound.src = src
+    this.sound.setAttribute("preload", "auto")
+    this.sound.setAttribute("controls", "none")
+    this.sound.style.display = "none"
+    document.body.appendChild(this.sound)
     this.play = function(){
-        this.sound.play();
+        this.sound.play()
     }
     this.stop = function(){
-        this.sound.pause();
+        this.sound.pause()
     }
 }
 
@@ -172,7 +173,7 @@ const moveFallingItems = () => {
 const playerMovementHandler = (e) => {
     if (keysPressed["KeyA"]){
         if(player.x > 0) {
-            player.x -= 5;
+            player.x -= 5
 
             // Change movement state if not already
             if (player.movementState === "idle") { player.movementState = "runningLeft" }
@@ -284,28 +285,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Create all GFuel tub images
     for (let i = 1; i < 7; i++) {
-        gfuelTubs[i] = document.createElement('img')
+        gfuelTubs[i] = new Image()
         gfuelTubs[i].src = `./img/GFuelTub${i}.png`
     }
 
     // Create all left / right running images
     for (let i = 1; i < 11; i++) {
-        runLeft[i] = document.createElement('img')
+        runLeft[i] = new Image()
         runLeft[i].src = `./img/running/runLeft${i}.png`
 
-        runRight[i] = document.createElement('img')
+        runRight[i] = new Image()
         runRight[i].src = `./img/running/runRight${i}.png`
     }
 
     // Create idle image
-    idleAnimation = document.createElement('img')
+    idleAnimation = new Image()
     idleAnimation.src = './img/idle.png'
     idleAnimation.style.width = "50px"
 
     // Create Main Menu Images
+    for (let i = 1; i < 5; i++) {
+        mainMenu[i] = new Image()
+        mainMenu[i].src = `img/mainMenu/menuOption${i}`
+    }
 
     // Create Trash Can
-    trashCan = document.createElement('img')
+    trashCan = new Image()
     trashCan.src = './img/trash.png'
 
     // Create Coin Noise
