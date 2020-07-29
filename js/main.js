@@ -333,7 +333,7 @@ const detectPlayerCollision = () => {
     })
 }
 
-const showMainMenu = async () => {
+const showMainMenu = () => {
     //Main Menu Listener
     document.addEventListener("click", mainMenuClickCheck)
 
@@ -341,20 +341,21 @@ const showMainMenu = async () => {
     clearBoard()
 
     // Main Menu Logo
-    await mainMenu[1].onload = () => {
+    mainMenu[1].onload = () => {
         console.log("Loaded")
+        context.drawImage(mainMenu[1], 150, 100, 500, 250)
     }
-    context.drawImage(mainMenu[1], 150, 100, 500, 250)
-    // Start Game Menu
-    await mainMenu[2].onload = () => {
-        console.log("Loaded")
-    }
-    context.drawImage(mainMenu[2], 350, 350, 100, 50)
 
-    await mainMenu[3].onload = () => {
+    // Start Game Menu
+    mainMenu[2].onload = () => {
         console.log("Loaded")
+        context.drawImage(mainMenu[2], 350, 350, 100, 50)
     }
-    context.drawImage(mainMenu[3], 350, 400, 100, 50)
+
+    mainMenu[3].onload = () => {
+        console.log("Loaded")
+        context.drawImage(mainMenu[3], 350, 400, 100, 50)
+    }
 
     context.font = "20px Verdana"
 
