@@ -456,6 +456,8 @@ const showHighScores = () => {
 }
 
 const renderHighScores = (highScores) => {
+    let backButton = "Return to Menu"
+
     clearBoard()
 
     let i = 1
@@ -463,7 +465,7 @@ const renderHighScores = (highScores) => {
 
     context.font = "40px Verdana"
     let textWidth = context.measureText("Global Highscores").width / 2
-    context.fillText("Global Highscores", 400 - textWidth, 300 )
+    context.fillText("Global Highscores", 400 - textWidth, 250 )
 
     context.font = "15px Verdana"
     highScores.forEach(scoreObject => {
@@ -471,8 +473,24 @@ const renderHighScores = (highScores) => {
         let highScoreText = `${i}: ${highScore}`
 
         context.fillText(highScoreText, 350, textY)
-        textY += 45
+        textY += 25
         i++
+    })
+
+    //Back Button
+    // Find X Coords for centered text
+    textWidth = context.measureText(backButton).width
+    // Draw Text
+    context.fillText(backButton, 400 - textWidth / 2, 475)
+
+    document.addEventListener("click", returnMenu = (e) => {
+        let mouseX = e.offsetX
+        let mouseY = e.offsetY
+
+        if (mouseX >= 400 - textWidth && mouseX <= 400 + textWidth && mouseY >= 445 && mouseY <= 485) {
+            document.removeEventListener("click", returnMenu)
+            showMainMenu()
+        }
     })
 }
 
