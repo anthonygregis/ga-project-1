@@ -25,7 +25,6 @@ let trashCollision
 
 // Grab highscore from browser, if not set make it 0
 if (localStorage.getItem("highscore")) {
-    localStorage.setItem("highscore", "0")
     highscore = localStorage.getItem("highscore")
 } else {
     localStorage.setItem("highscore", "0")
