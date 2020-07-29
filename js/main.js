@@ -356,17 +356,27 @@ const showMainMenu = () => {
         console.log("Loaded")
     }
     context.drawImage(mainMenu[3], 350, 400, 100, 50)
+
+    context.font = "20px Verdana"
+
+    let menu4Text = "Global Highscores"
+    let textWidth = context.measureText(menu4Text).width / 2
+
+    context.fillText(menu4Text, 400 - textWidth, 475)
 }
 
 const mainMenuClickCheck = (e) => {
     let mouseX = e.offsetX
     let mouseY = e.offsetY
+
     if (mouseX >= 350 && mouseX <= 450 && mouseY >= 350 && mouseY <= 400) {
         document.removeEventListener("click", mainMenuClickCheck)
         startGame()
-    } else if (mouseX >= 350 && mouseX <= 450 && mouseY >= 400 && mouseY <= 450) {
+    } else if (mouseX >= 350 && mouseX <= 450 && mouseY >= 400 && mouseY <= 445) {
         document.removeEventListener("click", mainMenuClickCheck)
         showInstructions()
+    } else if (mouseX >= 305 && mouseX <= 500 && mouseY >= 448 && mouseY <= 491) {
+        showHighScores()
     }
 }
 
@@ -432,6 +442,12 @@ const showInstructions = () => {
             showMainMenu()
         }
     })
+}
+
+const showHighScores = () => {
+    $.ajax({url: "php/getScores.php", success: (res) => {
+        console.log(res)
+    }})
 }
 
 // Holds all looping functions (Speed: 10ms)
