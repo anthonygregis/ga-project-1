@@ -461,7 +461,7 @@ const renderHighScores = (highScores) => {
     clearBoard()
 
     let i = 1
-    let textY = 400
+    let textY = 300
 
     context.font = "40px Verdana"
     let textWidth = context.measureText("Global Highscores").width / 2
