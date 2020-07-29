@@ -456,6 +456,8 @@ const showHighScores = () => {
 }
 
 const renderHighScores = (highScores) => {
+    clearBoard()
+    
     let i = 1
     let textY = 400
     highScores.forEach(scoreObject => {
