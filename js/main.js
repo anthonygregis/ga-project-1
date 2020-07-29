@@ -474,7 +474,7 @@ const renderHighScores = (highScores) => {
         let highScoreText = `${i}: ${highScore}`
         let textWidth = context.measureText(highScoreText).width / 2
 
-        context.fillText(highScoreText, 350 - textWidth, textY)
+        context.fillText(highScoreText, 400 - textWidth, textY)
         textY += 25
         i++
     })
