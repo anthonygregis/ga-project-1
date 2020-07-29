@@ -25,6 +25,7 @@ let trashCollision
 
 // Grab highscore from browser, if not set make it 0
 if (localStorage.getItem("highscore")) {
+    localStorage.setItem("highscore", "0")
     highscore = localStorage.getItem("highscore")
 } else {
     localStorage.setItem("highscore", "0")
@@ -143,6 +144,10 @@ const endGame = async () => {
         textWidth = context.measureText(highscorePointsText).width / 2
         // Draw Text centered
         context.fillText(highscorePointsText, 400 - textWidth, 425)
+
+        $.post("php/submitScore.php", {highscore: highscore}, (res) => {
+            console.log(res)
+        })
     }
 
     context.font = "20px Verdana"
