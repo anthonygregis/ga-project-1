@@ -445,9 +445,14 @@ const showInstructions = () => {
 }
 
 const showHighScores = () => {
-    $.ajax({url: "php/getScores.php", success: (res) => {
-        console.log(res)
-    }})
+    $.ajax({
+        url: "php/getScores.php",
+        type: "GET",
+        success: (res) => {
+            console.log(res)
+        },
+        dataType:"json"
+    })
 }
 
 // Holds all looping functions (Speed: 10ms)
