@@ -19,6 +19,16 @@ h1 img {
     display: block;
 }
 
+#topRow {
+    width: 800px;
+    display: grid;
+    grid-template-columns: auto auto auto;
+}
+
+#topRow p {
+    text-align: center;
+}
+
 #game {
     background-image: url("https://blog.gfuel.com/hs-fs/hubfs/g_fuel_blog_assets2018/newsletter-bg.jpg?width=1920&name=newsletter-bg.jpg");
     background-size: 100% 100%;

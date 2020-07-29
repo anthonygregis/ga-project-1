@@ -1,6 +1,7 @@
 // Global Variables
 let game
 let context
+let player
 let lives = 3
 let points = 0
 let highscore = 0
@@ -86,31 +87,94 @@ function Sound(src) {
     }
 }
 
-// Spawn player character
-// middle of the board is 400 X but if my char is 100 wide I would need to spawn on the 350 X
-let player = new PlayerCharacter(325, 500, 100)
-
 // Clear board function instead of wordy code each time
 const clearBoard = () => {
     context.clearRect(0, 0, game.width, game.height)
+    console.log("We cleared the board")
 }
 
 // Triggered after all lives lost
 // TODO: Add in popup instead of alert and reset game to main menu
-const endGame = () => {
-    clearInterval(spawnInterval)
-    clearInterval(movementInterval)
-    clearInterval(animationInterval)
+const endGame = async () => {
+    let gameOverText = "Game Over!"
+    let scoreText = `You collected ${points} points`
+    let highscoreText = "New Highscore!!"
+    let highscorePointsText = `Highscore: ${points}`
+    let livesText = ""
+
+    await clearInterval(spawnInterval)
+    await clearInterval(movementInterval)
+    await clearInterval(animationInterval)
 
     clearBoard()
 
+    fallingItems = []
+
+    // Change font for GameOver
+    context.font = "30px Verdana"
+    // Find X coords for centered text
+    textWidth = context.measureText(gameOverText).width / 2
+    // Draw Text centered
+    context.fillText(gameOverText, 400 - textWidth, 275)
+
+    // Change font for keys
+    context.font = "20px Verdana"
+    // Find X coords for centered text
+    textWidth = context.measureText(scoreText).width / 2
+    // Draw Text centered
+    context.fillText(scoreText, 400 - textWidth, 330)
+
     if (highscore < points) {
         highscore = points
-        localStorage.setItem("highscore", points.toString());
+        localStorage.setItem("highscore", points.toString())
+
+        highscoreSpan.textContent = highscore
+
+        // Change font for GameOver
+        context.font = "20px Verdana"
+        // Find X coords for centered text
+        textWidth = context.measureText(highscoreText).width / 2
+        // Draw Text centered
+        context.fillText(highscoreText, 400 - textWidth, 400)
+
+        // Change font for keys
+        context.font = "15px Verdana"
+        // Find X coords for centered text
+        textWidth = context.measureText(highscorePointsText).width / 2
+        // Draw Text centered
+        context.fillText(highscorePointsText, 400 - textWidth, 425)
     }
 
-    context.fillStyle = 'Black'
-    context.fillRect(250, 300, 300, 100)
+    context.font = "20px Verdana"
+    textWidth = context.measureText("Back to Main Menu").width / 2
+    context.fillText("Back to Main Menu", 400 - textWidth, 475)
+
+    document.addEventListener("click", gameOverButton = (e) => {
+        let mouseX = e.offsetX
+        let mouseY = e.offsetY
+
+        console.log(`X: ${mouseX} Y: ${mouseY}`)
+
+        if (mouseX >= 300 && mouseX <= 505 + textWidth && mouseY >= 445 && mouseY <= 480) {
+            document.removeEventListener("click", gameOverButton)
+
+            lives = 3
+
+            points = 0
+
+            fallingItemsCount = 0
+
+            for (let i = 0; i < lives; i++) {
+                livesText += "❤"
+            }
+
+            pointsSpan.textContent = points
+            livesSpan.textContent = livesText
+
+            showMainMenu()
+        }
+    })
+
 }
 
 const checkGameBounds = (itemXAxis) => {
@@ -187,8 +251,6 @@ const moveFallingItems = () => {
 }
 
 // New controller allows you to move player with more fluid control and less delay
-// TODO: [BUG] Currently the sprite can get stuck looking one direction but moving the other.
-// TODO: Cause is most likely the array of buttons in activate state
 const playerMovementHandler = () => {
     if (keysPressed["KeyA"]){
         if(player.x > 0) {
@@ -231,6 +293,8 @@ const detectPlayerCollision = () => {
         let itemBottom = item.y + item.size
 
         if(playerRight > itemLeft && playerLeft < itemRight && playerBottom > itemTop && playerTop < itemBottom ) {
+            let livesText = ""
+
             // Remove falling item from count
             fallingItemsCount--
 
@@ -239,19 +303,25 @@ const detectPlayerCollision = () => {
                 // Add point for GFUEL
                 points += item.pointValue
                 coinCollect.play()
+
+                pointsSpan.textContent = points
             } else {
                 // Remove life from lives and if out of lives end game
                 if (lives > 1) {
                     lives -= 1
                 } else {
+                    lives -= 1
                     endGame()
                 }
+
+                for (let i = 0; i < lives; i++) {
+                    livesText += "❤"
+                }
+
+                livesSpan.textContent = livesText
+
                 trashCollision.play()
             }
-
-            // Update points display
-            pointsSpan.textContent = points
-            livesSpan.textContent = lives
 
             //Despawn item
             item.isFalling = false
@@ -296,6 +366,10 @@ const mainMenuClickCheck = (e) => {
 }
 
 const startGame = () => {
+    // Spawn player character
+    // middle of the board is 400 X but if my char is 100 wide I would need to spawn on the 350 X
+    player = new PlayerCharacter(325, 500, 100)
+
     spawnInterval = setInterval(spawnFallingItems, 500)
     movementInterval = setInterval(boardMovementInterval, 10)
     animationInterval = setInterval(playerAnimationInterval, 80)
