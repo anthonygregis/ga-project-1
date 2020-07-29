@@ -376,6 +376,7 @@ const mainMenuClickCheck = (e) => {
         document.removeEventListener("click", mainMenuClickCheck)
         showInstructions()
     } else if (mouseX >= 305 && mouseX <= 500 && mouseY >= 448 && mouseY <= 491) {
+        document.removeEventListener("click", mainMenuClickCheck)
         showHighScores()
     }
 }
