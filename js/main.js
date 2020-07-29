@@ -449,9 +449,22 @@ const showHighScores = () => {
         url: "php/getScores.php",
         type: "GET",
         success: (res) => {
-            console.log(res)
+            renderHighScores(res)
         },
         dataType:"json"
+    })
+}
+
+const renderHighScores = (highScores) => {
+    let i = 1
+    let textY = 400
+    highScores.forEach(scoreObject => {
+        let highScore = scoreObject.highscore
+        let highScoreText = `${i}: ${highScore}`
+
+        context.fillText(highScoreText, 350, textY)
+        textY += 75
+        i++
     })
 }
 
