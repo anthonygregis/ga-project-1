@@ -457,15 +457,20 @@ const showHighScores = () => {
 
 const renderHighScores = (highScores) => {
     clearBoard()
-    
+
     let i = 1
     let textY = 400
+
+    context.font = "40px Verdana"
+    let textWidth = context.measureText("Global Highscores").width / 2
+    context.fillText("Global Highscores", 400 - textWidth, 300 )
+
     highScores.forEach(scoreObject => {
         let highScore = scoreObject.highscore
         let highScoreText = `${i}: ${highScore}`
 
         context.fillText(highScoreText, 350, textY)
-        textY += 75
+        textY += 45
         i++
     })
 }
