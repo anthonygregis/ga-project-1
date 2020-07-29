@@ -465,6 +465,7 @@ const renderHighScores = (highScores) => {
     let textWidth = context.measureText("Global Highscores").width / 2
     context.fillText("Global Highscores", 400 - textWidth, 300 )
 
+    context.font = "15px Verdana"
     highScores.forEach(scoreObject => {
         let highScore = scoreObject.highscore
         let highScoreText = `${i}: ${highScore}`
