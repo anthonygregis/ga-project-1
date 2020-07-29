@@ -22,5 +22,5 @@ while ($row = mysqli_fetch_array($result))
 //Close Connection
 mysqli_close($link);
 
-return $tableArray;
+print $tableArray;
 ?>
