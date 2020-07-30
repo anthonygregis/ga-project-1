@@ -110,6 +110,8 @@ const endGame = async () => {
 
     clearBoard()
 
+    document.removeEventListener("keydown", gamePause)
+
     fallingItems = []
 
     // Change font for GameOver
@@ -391,13 +393,29 @@ const mainMenuClickCheck = (e) => {
 // boardMovementInterval - Speed: 10ms
 // spawnInterval - Speed: 700ms
 const startGame = () => {
+    let gamePaused = false
     // Spawn player character
     // middle of the board is 400 X but if my char is 100 wide I would need to spawn on the 350 X
     player = new PlayerCharacter(325, 500, 100)
 
-    spawnInterval = setInterval(spawnFallingItems, 500)
-    movementInterval = setInterval(boardMovementInterval, 10)
-    animationInterval = setInterval(playerAnimationInterval, 80)
+    document.addEventListener("keydown", gamePause = (e) => {
+        if (e.key === "Escape") {
+            if (!gamePaused) {
+                gamePaused = true
+                clearInterval(spawnInterval)
+                clearInterval(movementInterval)
+                clearInterval(animationInterval)
+                context.fillText("Game Paused", 320, 300)
+            } else {
+                gamePaused = false
+                spawnInterval = setInterval(spawnFallingItems, 500)
+                movementInterval = setInterval(boardMovementInterval, 10)
+                animationInterval = setInterval(playerAnimationInterval, 80)
+            }
+        }
+    })
+
+    startIntervals()
 }
 
 const showInstructions = () => {
@@ -503,6 +521,12 @@ const renderHighScores = (highScores) => {
             showMainMenu()
         }
     })
+}
+
+const startIntervals = () => {
+    spawnInterval = setInterval(spawnFallingItems, 500)
+    movementInterval = setInterval(boardMovementInterval, 10)
+    animationInterval = setInterval(playerAnimationInterval, 80)
 }
 
 // Holds all looping functions (Speed: 10ms)
