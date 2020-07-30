@@ -2,8 +2,10 @@
 let game
 let context
 let player
+let fallSpeed = 1.5
 let lives = 3
 let points = 0
+let lastPointsChange = 0
 let highscore = 0
 let fallingItemsCount = 0
 let pointsSpan
@@ -234,6 +236,11 @@ const spawnFallingItems = () => {
 const moveFallingItems = () => {
     clearBoard()
 
+    if (points - lastPointsChange == 100) {
+        fallSpeed += .5
+        lastPointsChange = points
+    }
+
     // Remove any items on the floor
     fallingItems = fallingItems.filter(item => {
         if (item.isFalling === true) {
@@ -248,7 +255,7 @@ const moveFallingItems = () => {
             fallingItemsCount--
             console.log("Hit floor")
         } else {
-            item.y += 1.5
+            item.y += fallSpeed
             item.render()
         }
     })
@@ -384,6 +391,9 @@ const mainMenuClickCheck = (e) => {
     }
 }
 
+// Contains setIntervals and player character
+// boardMovementInterval - Speed: 10ms
+// spawnInterval - Speed: 700ms
 const startGame = () => {
     // Spawn player character
     // middle of the board is 400 X but if my char is 100 wide I would need to spawn on the 350 X
@@ -508,6 +518,7 @@ const boardMovementInterval = () => {
     player.render()
 }
 
+// Steps through player animations depending on movementState
 const playerAnimationInterval = () => {
     if (player.movementState === "runningLeft") {
         // Change movement image
@@ -526,10 +537,7 @@ const playerAnimationInterval = () => {
     }
 }
 
-// Define all DOM elements, canvas settings, and startup items
-// Contains setIntervals
-// boardMovementInterval - Speed: 10ms
-// spawnInterval - Speed: 700ms
+// Define all DOM elements, canvas settings
 document.addEventListener('DOMContentLoaded', () => {
     // Select Canvas
     game = document.querySelector('#game')
