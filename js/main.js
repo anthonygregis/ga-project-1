@@ -345,17 +345,20 @@ const showMainMenu = () => {
         console.log("Loaded")
         context.drawImage(mainMenu[1], 150, 100, 500, 250)
     }
+    context.drawImage(mainMenu[1], 150, 100, 500, 250)
 
     // Start Game Menu
     mainMenu[2].onload = () => {
         console.log("Loaded")
         context.drawImage(mainMenu[2], 350, 350, 100, 50)
     }
+    context.drawImage(mainMenu[2], 350, 350, 100, 50)
 
     mainMenu[3].onload = () => {
         console.log("Loaded")
         context.drawImage(mainMenu[3], 350, 400, 100, 50)
     }
+    context.drawImage(mainMenu[3], 350, 400, 100, 50)
 
     context.font = "20px Verdana"
 
