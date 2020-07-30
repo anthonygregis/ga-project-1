@@ -270,10 +270,7 @@ const playerMovementHandler = () => {
             // Change movement state if not already
             if (player.movementState !== "runningLeft") { player.movementState = "runningLeft" }
         }
-    } else {
-
-    }
-    if (keysPressed["KeyD"]){
+    } else if (keysPressed["KeyD"]){
         if(player.x + player.size < game.width) {
             player.x += 5
 
@@ -285,7 +282,6 @@ const playerMovementHandler = () => {
         player.movementStep = 1
         player.movementState = "idle"
     }
-
 }
 
 // Detects collision of items with player
