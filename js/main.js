@@ -479,7 +479,7 @@ const showHighScores = () => {
             document.removeEventListener("click", mainMenuClickCheck)
             renderHighScores(res)
         },
-        error: alert('There was an error performing the AJAX Call'),
+        error: console.log("Uh oh"),
         dataType:"json"
     })
 }
